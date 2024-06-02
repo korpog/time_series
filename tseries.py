@@ -12,6 +12,15 @@ from statsmodels.tsa.arima.model import ARIMA as arima_model
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
+
+def print_adf_test(results):
+    output = pd.Series(results[0:4], index=[
+                       'Test Statistics', 'p-value', 'No. of lags', 'Number of observations'], name="ADF Test Results")
+    for key, values in results[4].items():
+        output[f'critical value {key}'] = values
+    st.write(output)
+
+
 st.set_page_config(page_title='ARIMA Time Series', layout='wide')
 st.title("Time Series ARIMA Model")
 
@@ -20,18 +29,19 @@ with st.sidebar:
     st.header('Choose date range for the stock data')
 
     min_date = st.date_input(label='Enter :blue[start] date', value=datetime.date(2019, 6, 1),
-                            min_value=datetime.date(2010, 1, 1),
-                            max_value=datetime.date(2024, 5, 1), format="YYYY-MM-DD")
+                             min_value=datetime.date(2010, 1, 1),
+                             max_value=datetime.date(2024, 5, 1), format="YYYY-MM-DD")
 
     max_date = st.date_input(label='Enter :blue[end] date', value=datetime.date(2024, 6, 1),
-                            min_value=datetime.date(2010, 1, 2),
-                            max_value=datetime.date(2024, 6, 1), format="YYYY-MM-DD")
+                             min_value=datetime.date(2010, 1, 2),
+                             max_value=datetime.date(2024, 6, 1), format="YYYY-MM-DD")
 
     if min_date > max_date:
         st.warning('Minimum date should be earlier than maximum date')
 
 
-tab1, tab2, tab3, tab4 = st.tabs(['Data', 'ADF Test', 'ACF/PACF', 'ARIMA'])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    ['Data', 'ADF Test', 'ACF/PACF', 'Decomposition', 'ARIMA'])
 
 with tab1:
 
@@ -54,14 +64,12 @@ with tab1:
 with tab2:
     st.header("Before differencing", divider='blue')
     res = adfuller(df.Close)
-    st.write(f"ADF stat: {res[0]:.5f}")
-    st.write(f"p-value: {res[1]:.5f}")
+    print_adf_test(res)
 
     st.header("After differencing", divider='blue')
     diff = df.Close.diff().dropna()
     res2 = adfuller(diff)
-    st.write(f"ADF stat: {res2[0]:.5f}")
-    st.write(f"p-value: {res2[1]:.5f}")
+    print_adf_test(res2)
 
 with tab3:
     st.header("Before differencing", divider='blue')
@@ -78,8 +86,27 @@ with tab3:
     st.pyplot(fig2)
 
 with tab4:
+    st.subheader('Time Series Decomposition')
+
+    decomp_model = st.selectbox(
+        "Choose additive or multiplicative decomposition",
+        ("additive", "multiplicative",)
+    )
+
+    decomp = seasonal_decompose(x=df.Close, model=decomp_model, period=30)
+
+    T, S, R = decomp.trend, decomp.seasonal, decomp.resid
+
+    st.subheader('Trend')
+    st.line_chart(T)
+    st.subheader('Seasonality')
+    st.line_chart(S)
+    st.subheader('Residual')
+    st.line_chart(R, width=1)
+
+with tab5:
     y = df.Close
-    train, test = train_test_split(y, train_size=0.9)
+    train, test = train_test_split(y, train_size=0.95)
 
     model = pm.auto_arima(train)
     forecast = model.predict(test.shape[0])
