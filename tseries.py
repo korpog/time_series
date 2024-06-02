@@ -108,7 +108,7 @@ with tab4:
 
     fig, ax = plt.subplots()
     ax.plot(df.Close, c='blue', label='Actual value')
-    ax.plot(T + S, c='red', label='Trend + Seasonal')
+    ax.plot(T + S, c='red', label='Trend + Seasonal', linestyle='dashed')
     ax.legend()
     st.pyplot(fig)
 
