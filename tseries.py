@@ -93,7 +93,10 @@ with tab4:
         ("additive", "multiplicative",)
     )
 
-    decomp = seasonal_decompose(x=df.Close, model=decomp_model, period=30)
+    period = st.slider("Set period for the seasonal decomposition",
+                       min_value=1, max_value=365, value=30)
+
+    decomp = seasonal_decompose(x=df.Close, model=decomp_model, period=period)
 
     T, S, R = decomp.trend, decomp.seasonal, decomp.resid
 
@@ -102,7 +105,13 @@ with tab4:
     st.subheader('Seasonality')
     st.line_chart(S)
     st.subheader('Residual')
-    st.line_chart(R, width=1)
+    st.line_chart(R)
+
+    fig, ax = plt.subplots()
+    ax.plot(df.Close, c='blue', label='Actual value')
+    ax.plot(T + S, c='red', label='Trend + Seasonal')
+    ax.legend()
+    st.pyplot(fig)
 
 with tab5:
     y = df.Close
@@ -113,6 +122,7 @@ with tab5:
 
     x = df.index
     fig, ax = plt.subplots()
-    ax.plot(x[:len(train)], train, c='blue')
-    ax.plot(x[len(train):], forecast, c='green')
+    ax.plot(x[:len(train)], train, c='blue', label='Actual value')
+    ax.plot(x[len(train):], forecast, c='green', label='Prediction')
+    ax.legend()
     st.pyplot(fig)
