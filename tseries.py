@@ -1,16 +1,19 @@
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.arima.model import ARIMA as arima_model
+from statsmodels.tsa.seasonal import seasonal_decompose
+from pmdarima.model_selection import train_test_split
+import pmdarima as pm
+import matplotlib.pyplot as plt
+
 import datetime
 import numpy as np
 import pandas as pd
 import streamlit as st
-import yfinance as yf
-import matplotlib.pyplot as plt
-import pmdarima as pm
 
-from pmdarima.model_selection import train_test_split
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.arima.model import ARIMA as arima_model
-from statsmodels.tsa.stattools import adfuller
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+import appdirs as ad
+ad.user_cache_dir = lambda *args: "/tmp"
+import yfinance as yf
 
 
 def print_adf_test(results):
@@ -124,5 +127,6 @@ with tab5:
     fig, ax = plt.subplots()
     ax.plot(x[:len(train)], train, c='blue', label='Actual value')
     ax.plot(x[len(train):], forecast, c='green', label='Prediction')
+    ax.set_title("Stock prediction using ARIMA")
     ax.legend()
     st.pyplot(fig)
