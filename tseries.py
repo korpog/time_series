@@ -5,14 +5,10 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 from pmdarima.model_selection import train_test_split
 import pmdarima as pm
 import matplotlib.pyplot as plt
-
 import datetime
 import numpy as np
 import pandas as pd
 import streamlit as st
-
-import appdirs as ad
-ad.user_cache_dir = lambda *args: "/tmp"
 import yfinance as yf
 
 
