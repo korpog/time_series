@@ -119,6 +119,8 @@ with tab5:
     model = pm.auto_arima(train)
     forecast = model.predict(test.shape[0])
 
+    st.write(model.summary())
+
     x = df.index
     fig, ax = plt.subplots()
     ax.plot(x[:len(train)], train, c='blue', label='Actual value')
