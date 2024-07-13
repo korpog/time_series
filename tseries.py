@@ -117,14 +117,15 @@ with tab5:
     train, test = train_test_split(y, train_size=0.95)
 
     model = pm.auto_arima(train)
-    forecast = model.predict(test.shape[0])
+    forecast, conf_int = model.predict(n_periods=test.shape[0], return_conf_int=True)
 
     st.write(model.summary())
 
     x = df.index
     fig, ax = plt.subplots()
-    ax.plot(x[:len(train)], train, c='blue', label='Actual value')
-    ax.plot(x[len(train):], forecast, c='green', label='Prediction')
+    ax.plot(x, y, c='blue', label='Actual value')
+    ax.plot(x[len(train):], forecast, c='red', label='Prediction')
+    ax.fill_between(x[len(train):], conf_int[:, 0], conf_int[:, 1], color='purple', alpha=0.2, label='95% Confidence Interval')
     ax.set_title("Stock prediction using ARIMA")
     ax.legend()
     st.pyplot(fig)
